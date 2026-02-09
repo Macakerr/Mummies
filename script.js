@@ -1,26 +1,35 @@
-// --- SMOOTH SCROLL REVEAL ---
+// --- SCROLL ANIMATION ---
 window.onscroll = () => {
-    let winScroll = document.documentElement.scrollTop;
-    let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    document.getElementById("progress-bar").style.width = (winScroll / height) * 100 + "%";
-    
     document.querySelectorAll(".card").forEach(c => {
-        if (c.getBoundingClientRect().top < window.innerHeight - 100) c.classList.add("visible");
+        if (c.getBoundingClientRect().top < window.innerHeight - 100) {
+            c.classList.add("visible");
+        }
     });
 };
 
-// --- MUMMY GALLERY LOGIC ---
+// --- MUMMY GALLERY ---
 function showMummy(name, desc) {
     const box = document.getElementById('mummy-info-box');
     document.getElementById('m-name').innerText = name;
     document.getElementById('m-desc').innerText = desc;
     box.style.display = 'block';
-    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Smooth scroll to the info box so you don't miss it
+    box.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
-// --- ROYAL SCRIBE (STABILIZED VERSION) ---
+// --- ROYAL SCRIBE TRANSLATOR ---
 function translateGlyphs() {
-    const input = document.getElementById('glyphInput').value.toUpperCase();
+    let input = document.getElementById('glyphInput').value.toUpperCase();
+    
+    // *** SECRET CHEAT CODE ***
+    if (input === "CLEOPATRA") {
+        gold += 1000000;
+        updateUI();
+        alert("💎 QUEEN'S SECRET FOUND! +1,000,000 GOLD! 💎");
+        document.getElementById('glyphInput').value = ""; 
+        return;
+    }
+
     const map = {
         'A': '𓄿', 'B': '𓃀', 'C': '𓎼', 'D': '𓂓', 'E': '𓇋', 'F': '𓆑', 
         'G': '𓎼', 'H': '𓄿', 'I': '𓇋', 'J': '𓆎', 'K': '𓎡', 'L': '𓃭', 
@@ -33,16 +42,10 @@ function translateGlyphs() {
     for(let char of input) {
         res += (map[char] || char);
     }
-    
-    const output = document.getElementById('glyphOutput');
-    // We update innerText twice to force the browser to trigger a font re-render
-    output.innerText = "";
-    setTimeout(() => {
-        output.innerText = res || "---";
-    }, 10);
+    document.getElementById('glyphOutput').innerText = res || "---";
 }
 
-// --- IMPERIAL TYCOON GAME ---
+// --- TYCOON GAME ---
 let gold = 0;
 let pClick = 1;
 let pSec = 0;
@@ -64,19 +67,22 @@ function buy(id) {
         gold -= item.cost;
         if (item.type === 'click') pClick += item.inc;
         else pSec += item.inc;
-        item.cost = Math.floor(item.cost * 2.5); // Increase price
+        item.cost = Math.floor(item.cost * 2.5);
         updateUI();
     }
 }
 
 function updateUI() {
-    document.getElementById('gold-count').innerText = Math.floor(gold);
+    // .toLocaleString() adds commas to the numbers (e.g., 1,000)
+    document.getElementById('gold-count').innerText = Math.floor(gold).toLocaleString();
     for (let key in shop) {
-        document.getElementById('c-'+key).innerText = shop[key].cost;
+        if(document.getElementById('c-'+key)) {
+            document.getElementById('c-'+key).innerText = shop[key].cost.toLocaleString();
+        }
     }
 }
 
-// Tick income every second
+// Auto-add gold every second
 setInterval(() => {
     gold += pSec;
     updateUI();
